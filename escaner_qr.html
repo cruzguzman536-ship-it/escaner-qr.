@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#6d28d9">
+<title>Escáner QR</title>
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+<style>
+:root{--purple:#6d28d9;--purple2:#8b5cf6;--ink:#201b2c;--muted:#6f687c;--line:#e9e3f3;--bg:#f7f4fc;--white:#fff}
+*{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:linear-gradient(160deg,#f2eaff 0%,#fbfaff 48%,#f3f0ff 100%);color:var(--ink);min-height:100vh}
+.wrap{width:min(720px,100%);margin:0 auto;padding:22px 16px 40px}.top{text-align:center;padding:18px 8px 22px}.logo{width:68px;height:68px;margin:0 auto 12px;border-radius:22px;background:linear-gradient(135deg,var(--purple),#a78bfa);display:grid;place-items:center;color:white;box-shadow:0 12px 28px #6d28d933}.logo svg{width:38px;height:38px}.top h1{font-size:clamp(1.8rem,6vw,2.5rem);margin:0 0 8px;letter-spacing:-.04em}.top p{margin:0;color:var(--muted);line-height:1.5}
+.card{background:var(--white);border:1px solid var(--line);border-radius:24px;padding:18px;box-shadow:0 14px 40px #33205c0c;margin-bottom:16px}.tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px}.tab{border:1px solid var(--line);background:#fff;border-radius:14px;padding:12px 8px;font-weight:700;color:var(--muted);cursor:pointer}.tab.active{background:#f0e9ff;border-color:#c4b5fd;color:var(--purple)}button{font:inherit;cursor:pointer}.primary,.secondary{width:100%;border:0;border-radius:14px;padding:13px 16px;font-weight:750}.primary{background:var(--purple);color:#fff;box-shadow:0 8px 18px #6d28d92b}.primary:disabled{opacity:.45;cursor:not-allowed}.secondary{background:#f2edfb;color:var(--purple);border:1px solid #e4d8fb}.camera-box{overflow:hidden;border-radius:18px;background:#171321;min-height:220px;display:flex;align-items:center;justify-content:center;color:#d8d0e8;text-align:center;padding:16px}#reader{width:100%;border:0!important}#reader video{border-radius:14px;object-fit:cover}#reader__scan_region{min-height:200px}#reader__dashboard{padding:12px!important}#reader__dashboard_section_csr button,#reader__dashboard_section_fsr button{border:0!important;border-radius:10px!important;padding:10px!important;background:#ede9fe!important;color:#5b21b6!important;font-weight:700}#reader__status_span{color:#fff!important}#reader img{display:none}.hint{font-size:.9rem;color:var(--muted);line-height:1.5;margin:12px 2px 0}.status{display:flex;gap:9px;align-items:center;font-size:.92rem;color:var(--muted);margin:12px 0 0}.dot{width:9px;height:9px;border-radius:50%;background:#a78bfa;flex:none}.result-title{font-size:1.08rem;font-weight:800;margin:0 0 10px}.result-content{background:#f8f6fc;border:1px solid var(--line);padding:13px;border-radius:12px;overflow-wrap:anywhere;white-space:pre-wrap;min-height:48px}.actions{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:10px}.hidden{display:none!important}.history-head{display:flex;justify-content:space-between;align-items:center;gap:12px}.history-head h2{font-size:1.05rem;margin:0}.text-button{border:0;background:transparent;color:var(--purple);font-weight:750;padding:8px}.history-list{list-style:none;margin:12px 0 0;padding:0}.history-list li{padding:12px 0;border-top:1px solid var(--line);overflow-wrap:anywhere}.history-list small{display:block;color:var(--muted);margin-top:4px}.empty{color:var(--muted);font-size:.92rem;padding:14px 0}.footer{text-align:center;color:var(--muted);font-size:.8rem;padding:6px 12px 0}.file-label{display:block;text-align:center;background:#f2edfb;color:var(--purple);border:1px dashed #c4b5fd;padding:16px;border-radius:14px;font-weight:750;cursor:pointer}.file-label input{display:none}.note{font-size:.82rem;color:var(--muted);margin-top:12px;line-height:1.45}
+</style>
+</head>
+<body>
+<main class="wrap">
+<header class="top">
+  <div class="logo" aria-hidden="true"><svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="3"><rect x="4" y="4" width="12" height="12" rx="2"/><rect x="24" y="4" width="12" height="12" rx="2"/><rect x="4" y="24" width="12" height="12" rx="2"/><path d="M24 24h5v5h-5zM34 25v3m-7 8h-3v-4m10 0v4h-4"/></svg></div>
+  <h1>Escáner QR</h1><p>Escanea un código con tu cámara o léelo desde una imagen.</p>
+</header>
+<section class="card">
+  <div class="tabs" role="tablist" aria-label="Método de lectura">
+    <button class="tab active" id="cameraTab" role="tab" aria-selected="true">📷 Usar cámara</button>
+    <button class="tab" id="imageTab" role="tab" aria-selected="false">🖼️ Desde imagen</button>
+  </div>
+  <div id="cameraPanel">
+    <div class="camera-box" id="cameraPlaceholder"><div><div style="font-size:2.3rem;margin-bottom:8px">⌗</div><strong>Tu cámara aparecerá aquí</strong><div style="font-size:.88rem;margin-top:6px">Pulsa “Iniciar escáner” para comenzar.</div></div></div>
+    <div id="reader" class="hidden"></div>
+    <button class="primary" id="startBtn" style="margin-top:14px">Iniciar escáner</button>
+    <button class="secondary hidden" id="stopBtn" style="margin-top:10px">Detener cámara</button>
+    <p class="hint">Permite el acceso a la cámara cuando el navegador lo solicite. Para usar la cámara, publica esta página en un sitio HTTPS o ábrela en un entorno seguro.</p>
+  </div>
+  <div id="imagePanel" class="hidden">
+    <label class="file-label">Seleccionar imagen con código QR<input type="file" id="fileInput" accept="image/*"></label>
+    <div id="imageReader" class="hidden" style="margin-top:14px"></div>
+    <p class="hint">Elige una foto o captura de pantalla clara donde se vea completo el código QR.</p>
+  </div>
+  <div class="status"><span class="dot"></span><span id="statusText" aria-live="polite">Listo para escanear.</span></div>
+</section>
+<section class="card">
+  <h2 class="result-title">Resultado del escaneo</h2>
+  <div id="result" class="result-content" aria-live="polite">Aquí aparecerá el texto o enlace detectado.</div>
+  <div class="actions">
+    <button id="copyBtn" class="secondary" disabled>Copiar resultado</button>
+    <button id="openBtn" class="primary" disabled>Abrir enlace</button>
+  </div>
+  <p class="note">Por seguridad, revisa el enlace antes de abrirlo. Un código QR puede dirigir a sitios no confiables.</p>
+</section>
+<section class="card">
+  <div class="history-head"><h2>Últimos escaneos</h2><button id="clearBtn" class="text-button">Borrar historial</button></div>
+  <ul id="history" class="history-list"><li class="empty">Todavía no hay códigos escaneados.</li></ul>
+</section>
+<div class="footer">Tus resultados se guardan solo en esta página mientras permanezca abierta.</div>
+</main>
+<script>
+(() => {
+  const $ = id => document.getElementById(id);
+  let scanner = null, currentResult = '', historyItems = [], scanning = false;
+  const setStatus = s => $('statusText').textContent = s;
+  function isUrl(text) { try { const u = new URL(text); return ['http:','https:'].includes(u.protocol); } catch { return false; } }
+  function showResult(text) {
+    currentResult = text;
+    $('result').textContent = text;
+    $('copyBtn').disabled = false;
+    $('openBtn').disabled = !isUrl(text);
+    historyItems.unshift({text, time:new Date().toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit'})});
+    historyItems = historyItems.slice(0,10);
+    renderHistory();
+    setStatus('¡Código QR leído correctamente!');
+    stopScanner();
+  }
+  function renderHistory() {
+    const list = $('history'); list.replaceChildren();
+    if (!historyItems.length) { const li=document.createElement('li'); li.className='empty'; li.textContent='Todavía no hay códigos escaneados.'; list.append(li); return; }
+    historyItems.forEach(item => {
+      const li=document.createElement('li'), text=document.createElement('div'), time=document.createElement('small'), btn=document.createElement('button');
+      text.textContent=item.text; time.textContent='Escaneado a las '+item.time; btn.textContent='Ver resultado'; btn.className='text-button'; btn.style.padding='6px 0 0';
+      btn.onclick=()=>{currentResult=item.text;$('result').textContent=item.text;$('copyBtn').disabled=false;$('openBtn').disabled=!isUrl(item.text);setStatus('Resultado recuperado del historial.');};
+      li.append(text,time,btn); list.append(li);
+    });
+  }
+  async function stopScanner() {
+    if (scanner && scanning) { try { await scanner.stop(); } catch(e) {} scanning=false; }
+    $('stopBtn').classList.add('hidden'); $('startBtn').classList.remove('hidden');
+  }
+  $('startBtn').onclick = async () => {
+    if (!window.Html5Qrcode) { setStatus('No se pudo cargar el lector. Comprueba tu conexión a internet.'); return; }
+    $('cameraPlaceholder').classList.add('hidden'); $('reader').classList.remove('hidden');
+    $('startBtn').classList.add('hidden'); $('stopBtn').classList.remove('hidden');
+    try {
+      scanner = scanner || new Html5Qrcode('reader');
+      await scanner.start({ facingMode:'environment' }, { fps:10, qrbox:{width:230,height:230}, aspectRatio:1.0 }, decoded => showResult(decoded), () => {});
+      scanning=true; setStatus('Cámara activa: coloca el QR dentro del recuadro.');
+    } catch(e) {
+      $('cameraPlaceholder').classList.remove('hidden'); $('reader').classList.add('hidden');
+      $('startBtn').classList.remove('hidden'); $('stopBtn').classList.add('hidden');
+      setStatus('No se pudo abrir la cámara. Revisa los permisos y que la página use HTTPS.');
+    }
+  };
+  $('stopBtn').onclick = async () => { await stopScanner(); $('cameraPlaceholder').classList.remove('hidden'); $('reader').classList.add('hidden'); setStatus('Escáner detenido.'); };
+  $('cameraTab').onclick = () => { $('cameraTab').classList.add('active');$('imageTab').classList.remove('active');$('cameraTab').setAttribute('aria-selected','true');$('imageTab').setAttribute('aria-selected','false');$('cameraPanel').classList.remove('hidden');$('imagePanel').classList.add('hidden'); };
+  $('imageTab').onclick = async () => { await stopScanner();$('imageTab').classList.add('active');$('cameraTab').classList.remove('active');$('imageTab').setAttribute('aria-selected','true');$('cameraTab').setAttribute('aria-selected','false');$('imagePanel').classList.remove('hidden');$('cameraPanel').classList.add('hidden'); };
+  $('fileInput').onchange = async e => {
+    const file=e.target.files && e.target.files[0]; if(!file)return;
+    if(!window.Html5Qrcode){setStatus('No se pudo cargar el lector. Comprueba tu conexión a internet.');return;}
+    try {
+      $('imageReader').classList.remove('hidden');
+      const imgScanner = new Html5Qrcode('imageReader');
+      const decoded = await imgScanner.scanFile(file,true);
+      showResult(decoded); await imgScanner.clear(); $('imageReader').classList.add('hidden');
+    } catch(err) { $('imageReader').classList.add('hidden'); setStatus('No se encontró un QR legible. Prueba con una imagen más nítida.'); }
+    e.target.value='';
+  };
+  $('copyBtn').onclick = async () => { try { await navigator.clipboard.writeText(currentResult); setStatus('Resultado copiado.'); } catch(e) { const t=document.createElement('textarea');t.value=currentResult;document.body.append(t);t.select();document.execCommand('copy');t.remove();setStatus('Resultado copiado.'); } };
+  $('openBtn').onclick = () => { if(isUrl(currentResult)) window.open(currentResult,'_blank','noopener,noreferrer'); };
+  $('clearBtn').onclick = () => { historyItems=[];renderHistory();setStatus('Historial borrado.'); };
+})();
+</script>
+</body>
+</html>
